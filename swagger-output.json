@@ -11,9 +11,17 @@
     "http"
   ],
   "paths": {
-    "/users": {
+    "/api/v1/users": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -22,6 +30,17 @@
       },
       "post": {
         "description": "",
+        "parameters": [
+          {
+            "name": "users model",
+            "in": "body",
+            "description": "User Information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddUser"
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -29,15 +48,30 @@
         }
       }
     },
-    "/users/{id}": {
+    "/api/v1/users/{id}": {
       "put": {
         "description": "",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
           {
             "name": "id",
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "users model",
+            "in": "body",
+            "description": "User Information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddUser"
+            }
           }
         ],
         "responses": {
@@ -50,6 +84,12 @@
         "description": "",
         "parameters": [
           {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -63,10 +103,16 @@
         }
       }
     },
-    "/users/{accountNumber}": {
+    "/api/v1/users/{accountNumber}": {
       "get": {
         "description": "",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
           {
             "name": "accountNumber",
             "in": "path",
@@ -81,10 +127,16 @@
         }
       }
     },
-    "/users-delete/{id}": {
+    "/api/v1/users-delete/{id}": {
       "delete": {
         "description": "",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
           {
             "name": "id",
             "in": "path",
@@ -98,7 +150,74 @@
           }
         }
       }
+    },
+    "/api/v1/auth/signin": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "User Signin.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SignIn"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
-  "autoBody": true
+  "definitions": {
+    "AddUser": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "example": "Jhon Doe"
+        },
+        "emailAddress": {
+          "type": "string",
+          "example": "JhonDoe@gmail.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "btpn"
+        },
+        "accountNumber": {
+          "type": "number",
+          "example": 1
+        },
+        "identityNumber": {
+          "type": "number",
+          "example": 1
+        }
+      },
+      "required": [
+        "name",
+        "age"
+      ]
+    },
+    "SignIn": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "JhonDoe@gmail.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "btpn"
+        }
+      }
+    }
+  }
 }

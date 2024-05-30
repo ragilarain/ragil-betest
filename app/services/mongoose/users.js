@@ -2,6 +2,7 @@ const Users = require("../../api/v1/users/model")
 const { BadRequestError, NotFoundError } = require('../../error');
 const { USERS_DUPLICATED, USERS_NOT_FOUND, FALSE_VALUE, TRUE_VALUE } = require("../../globalVariable");
 const bcrypt = require('bcryptjs')
+const CacheService = require('../../middlewares/cache')
 
 const getUsersServices = async(req)=>{
     const result = Users.find({
@@ -12,7 +13,7 @@ const getUsersServices = async(req)=>{
 }
 
 const createUserServices = async(req)=> {
-    const { userName, emailAddress, accountNumber, identityNumber } = req.body;
+    const { userName, emailAddress, accountNumber, identityNumber, password } = req.body;
 
     const isDuplicate = await Users.findOne({
         accountNumber,
@@ -21,10 +22,10 @@ const createUserServices = async(req)=> {
     console.log(isDuplicate);
     if(isDuplicate) throw new BadRequestError(USERS_DUPLICATED);
 
-    const passwordDefault = await bcrypt.hash('btpn', 12);
+    const passwordHash = await bcrypt.hash(password, 12);
     const result = await Users.create({
         userName,
-        password: passwordDefault,
+        password: passwordHash,
         emailAddress,
         accountNumber,
         identityNumber,
@@ -59,11 +60,21 @@ const updateUserServices = async(req)=> {
 
 const getOneUserServices = async(req)=> {
     const { accountNumber } = req.params;
+    const cacheKey = `user:${accountNumber}`;
+
+    const cachedUser = await CacheService.get(cacheKey);
+    if (cachedUser) {
+        console.log('RETURN HERE NIHH ', cachedUser);
+        return cachedUser;
+    }
+
     const result = await Users.findOne({
         accountNumber
     });
 
     if(!result) throw new NotFoundError(USERS_NOT_FOUND);
+
+    await CacheService.set(cacheKey, result);
 
     return result;
 }
@@ -74,7 +85,12 @@ const destroyUserServices = async (req) => {
         _id: id
     })
 
+    const cacheKey = `user:${result.accountNumber}`;
+    console.log(cacheKey);
+    
     if(!result) throw new NotFoundError(USERS_NOT_FOUND);
+
+    await CacheService.del(cacheKey);
 
     await result.deleteOne();
 
@@ -87,7 +103,7 @@ const deleteUserServices = async (req)=> {
     const isCheck = await Users.findOne({
         _id: { $ne: id}
     })
-
+    console.log('CHECK FUCKING DELETE ',isCheck);
     if(!isCheck) throw new NotFoundError(USERS_NOT_FOUND);
 
     const result = await Users.findOneAndUpdate(

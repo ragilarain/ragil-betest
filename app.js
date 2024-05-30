@@ -3,9 +3,10 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-// const swaggerUi = require('swagger-ui-express');
-// const swaggerDocs = require('./swagger');
-// const swaggerDocument = require('./bin/swagger-output.json');
+const redis = require('redis')
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocs = require('./swagger');
+const swaggerDocument = require('./swagger-output.json');
 
 const indexRouter = require('./routes/index');
 const authRoute = require("./app/api/v1/auth/routes");
@@ -28,7 +29,7 @@ app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 app.use(`${v1}`, authRoute)
 app.use(`${v1}`, usersRouter)
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(notFoundMiddleware);
 app.use(handleErrorMiddleware);
